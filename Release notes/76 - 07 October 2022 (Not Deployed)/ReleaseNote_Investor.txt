@@ -1,0 +1,114 @@
+
+Login user:  pa-gke-mf-invest-app-prod
+Password: Lntinvest$ppa1234
+Source base path : camelotdev-harbor.robosoftin.com:8443/mbaas/
+Destination base path:  asia.gcr.io/mfcams-prod/invest-portal-prod-app/
+NAMESPACE: mf-invest-app-prod
+
+Note: Refer section 4 to get last deployed image tags
+
+*******************************Date : 07/10/2022 **********************************
+
+Section 2: Deployment flow.   (Refer section 3 for usefull helper commands)
+
+Image tag: (To be filled ...)
+1) nginx-investor-svc:0.0.149-live
+2) mbaas-svc-transaction:0.0.1007-test
+
+
+Steps:
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**FOR INVESTOR PORTAL FRONTEND**
+
+1) cd Robosoft/yml/Dec03     (cd to location where yaml is kept )
+
+2) docker pull camelotdev-harbor.robosoftin.com:8443/mbaas/nginx-investor-svc:0.0.149-live
+
+3) docker tag camelotdev-harbor.robosoftin.com:8443/mbaas/nginx-investor-svc:0.0.149-live  asia.gcr.io/mfcams-prod/invest-portal-prod-app/nginx-investor-svc:0.0.149-live
+
+4) docker push asia.gcr.io/mfcams-prod/invest-portal-prod-app/nginx-investor-svc:0.0.149-live
+
+5) vi <YAML FILE NAME>.yaml and update image tag
+
+   vi nginx-okd.yaml
+
+6) 
+   kubectl apply -f nginx-okd.yaml -n mf-invest-app-prod
+
+7) kubectl get pods  -n  mf-invest-app-prod  (This command could be used to verify deployment is proper or not)
+
+Note: All deployed pods should be "running" state
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+*FOR Transaction SVC *
+1) cd Robosoft/yml/Dec03     (cd to location where yaml is kept )
+
+2) docker pull camelotdev-harbor.robosoftin.com:8443/mbaas/mbaas-svc-transaction:0.0.1007-test
+
+3) docker tag camelotdev-harbor.robosoftin.com:8443/mbaas/mbaas-svc-transaction:0.0.1007-test  asia.gcr.io/mfcams-prod/invest-portal-prod-app/mbaas-svc-transaction:0.0.1007-test
+
+4) docker push asia.gcr.io/mfcams-prod/invest-portal-prod-app/mbaas-svc-transaction:0.0.1007-test
+
+5) vi <YAML FILE NAME>.yaml and update image tag
+
+   vi mbaas-svc-transaction.yaml
+
+To save-> :wq!
+Quit with out saving-> :q!
+
+6) 
+   kubectl apply -f mbaas-svc-transaction.yaml -n mf-invest-app-prod
+
+7) kubectl get pods  -n  mf-invest-app-prod  (This command could be used to verify deployment is proper or not)
+
+Note: All deployed pods should be "running" state
+
+*******************************DEPLOYMENT END:  07-10-2022 **********************************
+
+
+Section 3:  Other Helpful commands
+
+1) clear "evicted" pods
+
+kubectl get pods -n mf-invest-app-prod| grep Evicted | awk '{print $1}' | xargs kubectl delete pod -n mf-invest-app-prod
+
+2)list out PODNAME of the  deployed images
+
+kubectl get pods -n <NAMESAPCE>
+
+Ex:  kubectl get pods  -n  mf-invest-app-prod
+
+
+3) check what is last deployed image  tag 
+kubectl get pod <PODNAME> -o yaml -n <NAMESAPCE> | grep 'image: asia.gcr.io/mfcams-prod/invest-portal-prod-app/'
+
+
+Ex: kubectl get pod mbaas-svc-auth-69569b4fc4-cskvw  -o  yaml -n mf-invest-app-prod | grep 'asia.gcr.io/mfcams-prod/invest-portal-prod-app/'
+
+
+4) get log file of the pod
+kubectl log  <PODNAME>  -n <NAMESAPCE>
+Ex:  kubectl log mbaas-svc-auth-69569b4fc4-cskvw -n mf-invest-app-prod
+
+5) store the log into some file 
+kubectl log mbaas-svc-auth-69569b4fc4-cskvw -n mf-invest-app-prod >> filename.log
+
+———————————————————————————————
+Section 4: Last deployed image tags
+
+ 1)mbaas-svc-auth:0.0.597-test
+ 2)mbaas-svc-general:0.0.270-test
+ 3)mbaas-svc-identity-ifa:0.0.131-test
+ 4)mbaas-svc-nontransaction:0.0.562-test
+ 5)mbaas-svc-notification:0.0.198-test
+ 6)mbaas-svc-otp:0.0.142-test
+ 7)mbaas-svc-paymentgateway:0.0.120-test
+ 8)mbaas-svc-product:0.0.167-test
+ 9)mbaas-svc-transaction:0.0.1006-test
+ 10)nginx-investor-svc:0.0.148-live
+
+ ------------------------------------------  
+ 
